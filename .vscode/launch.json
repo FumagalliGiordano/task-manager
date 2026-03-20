@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Task Manager - add",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/main.py",
+      "args": ["add", "Task di esempio"],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Task Manager - list",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/main.py",
+      "args": ["list", "--all"],
+      "console": "integratedTerminal"
+    }
+  ]
+}

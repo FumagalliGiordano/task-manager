@@ -1,0 +1,22 @@
+[run]
+source = domain, app, utils
+omit =
+    tests/*
+    */__init__.py
+    main.py
+
+[report]
+# Soglie minime per layer (fallisce la build se non raggiunte)
+fail_under = 90
+
+show_missing = true
+skip_covered = false
+precision = 1
+
+[html]
+directory = coverage_html
+
+[paths]
+source =
+    .
+    task_manager_v2/

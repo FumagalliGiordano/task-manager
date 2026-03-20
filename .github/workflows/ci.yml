@@ -1,0 +1,138 @@
+# ─── GitHub Actions CI Pipeline ──────────────────────────────────────────────
+# Task Manager — Continuous Integration
+#
+# Trigger:
+#   - Push su main e develop
+#   - Pull Request verso main
+#
+# Job:
+#   1. lint     → controllo stile (flake8)
+#   2. test     → suite completa pytest su Python 3.10, 3.11, 3.12
+#   3. coverage → report coverage + badge (solo Python 3.12)
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  APP_ENV: test         # Forza ambiente test per tutta la pipeline
+  PYTHONDONTWRITEBYTECODE: 1
+  PYTHONUNBUFFERED: 1
+
+jobs:
+
+  # ─── 1. Lint ───────────────────────────────────────────────────────────────
+  lint:
+    name: Lint (flake8)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout codice
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Installa dipendenze lint
+        run: pip install flake8
+
+      - name: Esegui flake8
+        run: |
+          flake8 . \
+            --max-line-length=100 \
+            --exclude=.venv,__pycache__,.git,coverage_html \
+            --statistics
+
+  # ─── 2. Test Matrix ────────────────────────────────────────────────────────
+  test:
+    name: Test Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    needs: lint
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Checkout codice
+        uses: actions/checkout@v4
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Installa dipendenze app
+        run: pip install -r requirements.txt
+
+      - name: Installa dipendenze test
+        run: pip install -r requirements-test.txt
+
+      - name: Esegui unit test
+        run: pytest tests/unit/ -v --tb=short
+
+      - name: Esegui integration test
+        run: pytest tests/integration/ -v --tb=short
+
+      - name: Esegui regression test
+        run: pytest tests/regression/ -v --tb=short
+
+      - name: Esegui concurrency test
+        run: pytest tests/concurrency/ -v --tb=short -s
+        timeout-minutes: 3
+
+  # ─── 3. Coverage (solo Python 3.12) ───────────────────────────────────────
+  coverage:
+    name: Coverage Report
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout codice
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Installa tutte le dipendenze
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-test.txt
+
+      - name: Esegui suite completa con coverage
+        run: |
+          pytest tests/ \
+            --ignore=tests/concurrency \
+            --cov=. \
+            --cov-config=.coveragerc \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            --cov-fail-under=90
+
+      - name: Upload coverage XML ad artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+          retention-days: 14
+
+      # Opzionale: carica su Codecov (richiede CODECOV_TOKEN nei secrets)
+      # - name: Upload su Codecov
+      #   uses: codecov/codecov-action@v4
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     files: coverage.xml
+      #     fail_ci_if_error: true

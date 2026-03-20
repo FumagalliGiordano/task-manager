@@ -1,0 +1,9 @@
+# Task Manager v3 - Dipendenze Open Source
+# Licenze: MIT / Apache 2.0 / BSD
+
+click>=8.1.0              # CLI framework (BSD-3-Clause)
+loguru>=0.7.0             # Logging strutturato (MIT)
+pydantic>=2.0.0           # Data validation (MIT)
+pydantic-settings>=2.0.0  # Settings da env/file .env (MIT)
+python-dotenv>=1.0.0      # Caricamento file .env (BSD-3-Clause)
+filelock>=3.12.0          # File locking cross-platform (Unlicense)

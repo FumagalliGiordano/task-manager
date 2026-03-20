@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+coverage.xml
+coverage_html/
+*.log
+*.bak
+tasks.json
+tasks.dev.json
+tasks.test.json
+.DS_Store
