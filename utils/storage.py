@@ -47,7 +47,9 @@ class JsonStorage:
         Se il file è corrotto → backup + lista vuota (nessuna sovrascrittura silenziosa).
         """
         if not self.path.exists():
-            logger.debug(f"File storage non trovato: {self.path}. Partenza da lista vuota.")
+            logger.debug(
+                f"File storage non trovato: {self.path}. Partenza da lista vuota."
+            )
             return []
 
         try:
@@ -55,12 +57,13 @@ class JsonStorage:
                 with self.path.open("r", encoding="utf-8") as f:
                     data = json.load(f)
                     if not isinstance(data, list):
-                        raise ValueError("Il contenuto del file non è una lista JSON valida.")
+                        raise ValueError(
+                            "Il contenuto del file non è una lista JSON valida."
+                        )
                     logger.debug(f"Caricati {len(data)} task da {self.path}")
                     return data
 
         except (json.JSONDecodeError, ValueError) as e:
-            # [EDGE] File corrotto: salva backup e avvisa l'utente
             backup_path = self.path.with_suffix(".json.bak")
             shutil.copy2(self.path, backup_path)
             logger.error(
@@ -68,7 +71,6 @@ class JsonStorage:
                 f"Backup salvato in '{backup_path}'. "
                 f"Correggilo manualmente prima di procedere."
             )
-            # Solleva eccezione invece di ritornare [] silenziosamente
             raise RuntimeError(
                 f"Il file '{self.path}' è corrotto. "
                 f"Un backup è stato salvato in '{backup_path}'.\n"
@@ -76,12 +78,14 @@ class JsonStorage:
             ) from e
 
         except Timeout:
-                    lock_path = self.lock_path
-                    timeout = settings.lock_timeout
-                    logger.error(
-                        f"Impossibile acquisire il lock su '{lock_path}' dopo {timeout}s."
-                    )
-                    raise RuntimeError("Un altro processo sta usando il file. Riprova tra qualche secondo.")
+            lock_path = self.lock_path
+            timeout = settings.lock_timeout
+            logger.error(
+                f"Impossibile acquisire il lock su '{lock_path}' dopo {timeout}s."
+            )
+            raise RuntimeError(
+                "Un altro processo sta usando il file. Riprova tra qualche secondo."
+            )
 
         except OSError as e:
             logger.error(f"Errore I/O lettura storage: {e}")
@@ -99,8 +103,6 @@ class JsonStorage:
         """
         try:
             with self.lock:
-                # Scrittura su temp nella stessa directory (garantisce stesso filesystem →
-                # rename atomico)
                 dir_path = self.path.parent
                 with tempfile.NamedTemporaryFile(
                     mode="w",
@@ -112,21 +114,23 @@ class JsonStorage:
                     json.dump(tasks, tmp, indent=2, ensure_ascii=False)
                     tmp_path = Path(tmp.name)
 
-                # Rename atomico: se fallisce qui, il file originale è intatto
                 tmp_path.replace(self.path)
-                logger.debug(f"Salvati {len(tasks)} task su {self.path} (scrittura atomica)")
+                logger.debug(
+                    f"Salvati {len(tasks)} task su {self.path} (scrittura atomica)"
+                )
 
         except Timeout:
-                    lock_path = self.lock_path
-                    timeout = settings.lock_timeout
-                    logger.error(
-                        f"Impossibile acquisire il lock su '{lock_path}' dopo {timeout}s."
-                    )
-                    raise RuntimeError("Un altro processo sta usando il file. Riprova tra qualche secondo.")
+            lock_path = self.lock_path
+            timeout = settings.lock_timeout
+            logger.error(
+                f"Impossibile acquisire il lock su '{lock_path}' dopo {timeout}s."
+            )
+            raise RuntimeError(
+                "Un altro processo sta usando il file. Riprova tra qualche secondo."
+            )
 
         except OSError as e:
             logger.error(f"Errore I/O scrittura storage: {e}")
-            # Cleanup del file temporaneo se esiste
             try:
                 tmp_path.unlink(missing_ok=True)
             except Exception:
