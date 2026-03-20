@@ -76,11 +76,12 @@ class JsonStorage:
             ) from e
 
         except Timeout:
-            logger.error(
-                f"Impossibile acquisire il lock su '{
-                    self.lock_path}' dopo {
-                    settings.lock_timeout}s.")
-            raise RuntimeError("Un altro processo sta usando il file. Riprova tra qualche secondo.")
+                    lock_path = self.lock_path
+                    timeout = settings.lock_timeout
+                    logger.error(
+                        f"Impossibile acquisire il lock su '{lock_path}' dopo {timeout}s."
+                    )
+                    raise RuntimeError("Un altro processo sta usando il file. Riprova tra qualche secondo.")
 
         except OSError as e:
             logger.error(f"Errore I/O lettura storage: {e}")
@@ -116,11 +117,12 @@ class JsonStorage:
                 logger.debug(f"Salvati {len(tasks)} task su {self.path} (scrittura atomica)")
 
         except Timeout:
-            logger.error(
-                f"Impossibile acquisire il lock su '{
-                    self.lock_path}' dopo {
-                    settings.lock_timeout}s.")
-            raise RuntimeError("Un altro processo sta usando il file. Riprova tra qualche secondo.")
+                    lock_path = self.lock_path
+                    timeout = settings.lock_timeout
+                    logger.error(
+                        f"Impossibile acquisire il lock su '{lock_path}' dopo {timeout}s."
+                    )
+                    raise RuntimeError("Un altro processo sta usando il file. Riprova tra qualche secondo.")
 
         except OSError as e:
             logger.error(f"Errore I/O scrittura storage: {e}")
