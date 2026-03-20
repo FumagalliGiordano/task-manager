@@ -15,7 +15,6 @@ Test case:
 import json
 import multiprocessing
 import time
-import tempfile
 from pathlib import Path
 
 import pytest
@@ -38,7 +37,7 @@ def _worker_add_task(filepath: str, title: str, result_queue: multiprocessing.Qu
 
 
 def _worker_hold_lock_then_add(filepath: str, lock_duration: float,
-                                title: str, ready_event, result_queue):
+                               title: str, ready_event, result_queue):
     """
     Acquisisce il lock, segnala ready, attende lock_duration,
     poi esegue l'add. Simula un processo lento con lock tenuto.
@@ -60,7 +59,7 @@ def _worker_hold_lock_then_add(filepath: str, lock_duration: float,
 
 
 def _worker_add_with_delay(filepath: str, title: str, delay: float,
-                            result_queue: multiprocessing.Queue):
+                           result_queue: multiprocessing.Queue):
     """Attende delay secondi poi aggiunge un task."""
     time.sleep(delay)
     _worker_add_task(filepath, title, result_queue)

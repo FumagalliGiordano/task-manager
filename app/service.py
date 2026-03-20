@@ -7,14 +7,13 @@ Fix applicati (QA Report):
 - [EDGE]  Gestione eccezione da storage corrotto propagata all'utente
 """
 
+from utils.storage import JsonStorage
+from domain.models import Task
 from typing import List, Optional
 
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
-
-from domain.models import Task
-from utils.storage import JsonStorage
 
 
 class TaskService:

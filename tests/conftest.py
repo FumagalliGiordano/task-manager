@@ -7,6 +7,8 @@ Fornisce:
 - Helper per la verifica dello stato del file
 """
 
+from app.service import TaskService
+from utils.storage import JsonStorage
 import json
 import tempfile
 from pathlib import Path
@@ -18,10 +20,6 @@ from filelock import FileLock
 # Aggiungo la root del progetto al path per importazioni relative
 import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from domain.models import Task
-from utils.storage import JsonStorage
-from app.service import TaskService
 
 
 # ─── Dati mock standard ───────────────────────────────────────────────────────

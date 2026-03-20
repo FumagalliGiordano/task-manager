@@ -24,12 +24,15 @@ logger = get_logger(__name__)
 
 @click.group()
 def cli():
-    """📋 Task Manager — Gestisci i tuoi task da terminale.\n\nAmbiente: {env} | Storage: {storage} | Log: {log_level}""".format(
+    """📋 Task Manager — Gestisci i tuoi task da terminale.
+
+    \b
+    Ambiente: {env} | Storage: {storage} | Log: {log_level}
+    """.format(
         env=settings.env.upper(),
         storage=settings.storage_file,
         log_level=settings.log_level,
     )
-    pass
 
 
 def _get_service() -> TaskService:
@@ -58,7 +61,8 @@ def add_task(title: str):
 
 
 @cli.command("list")
-@click.option("--all", "show_all", is_flag=True, default=False, help="Mostra tutti i task (inclusi completati)")
+@click.option("--all", "show_all", is_flag=True, default=False,
+              help="Mostra tutti i task (inclusi completati)")
 def list_tasks(show_all: bool):
     """Elenca i task attivi (o tutti con --all)."""
     try:

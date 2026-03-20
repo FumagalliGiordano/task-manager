@@ -76,7 +76,10 @@ class JsonStorage:
             ) from e
 
         except Timeout:
-            logger.error(f"Impossibile acquisire il lock su '{self.lock_path}' dopo {settings.lock_timeout}s.")
+            logger.error(
+                f"Impossibile acquisire il lock su '{
+                    self.lock_path}' dopo {
+                    settings.lock_timeout}s.")
             raise RuntimeError("Un altro processo sta usando il file. Riprova tra qualche secondo.")
 
         except OSError as e:
@@ -95,7 +98,8 @@ class JsonStorage:
         """
         try:
             with self.lock:
-                # Scrittura su temp nella stessa directory (garantisce stesso filesystem → rename atomico)
+                # Scrittura su temp nella stessa directory (garantisce stesso filesystem →
+                # rename atomico)
                 dir_path = self.path.parent
                 with tempfile.NamedTemporaryFile(
                     mode="w",
@@ -112,7 +116,10 @@ class JsonStorage:
                 logger.debug(f"Salvati {len(tasks)} task su {self.path} (scrittura atomica)")
 
         except Timeout:
-            logger.error(f"Impossibile acquisire il lock su '{self.lock_path}' dopo {settings.lock_timeout}s.")
+            logger.error(
+                f"Impossibile acquisire il lock su '{
+                    self.lock_path}' dopo {
+                    settings.lock_timeout}s.")
             raise RuntimeError("Un altro processo sta usando il file. Riprova tra qualche secondo.")
 
         except OSError as e:

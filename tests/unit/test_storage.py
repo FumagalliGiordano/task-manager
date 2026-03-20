@@ -13,13 +13,10 @@ Test case:
 """
 
 import json
-import os
-import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 import pytest
-from filelock import Timeout
 
 from utils.storage import JsonStorage
 
@@ -150,7 +147,8 @@ class TestJsonStorageSave:
         current_tasks = json.loads(populated_json_file.read_text(encoding="utf-8"))
         assert current_tasks == original_tasks
 
-    def test_atomic_write_no_temp_file_left(self, storage_empty: JsonStorage, empty_json_file: Path):
+    def test_atomic_write_no_temp_file_left(
+            self, storage_empty: JsonStorage, empty_json_file: Path):
         """Dopo un salvataggio riuscito non devono restare file .tmp."""
         storage_empty.save([{"id": 1, "title": "Test", "completed": False}])
         tmp_files = list(empty_json_file.parent.glob("*.tmp"))

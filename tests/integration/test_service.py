@@ -136,7 +136,8 @@ class TestTaskServiceComplete:
         result = service_populated.complete(999)
         assert result is None
 
-    def test_complete_persists_to_disk(self, service_populated: TaskService, populated_json_file: Path):
+    def test_complete_persists_to_disk(
+            self, service_populated: TaskService, populated_json_file: Path):
         """Lo stato completato deve essere scritto su disco."""
         service_populated.complete(1)
         raw = json.loads(populated_json_file.read_text(encoding="utf-8"))
@@ -149,7 +150,8 @@ class TestTaskServiceComplete:
         assert task is not None
         assert task.completed is True
 
-    def test_complete_preserves_other_tasks(self, service_populated: TaskService, populated_json_file: Path):
+    def test_complete_preserves_other_tasks(
+            self, service_populated: TaskService, populated_json_file: Path):
         """Completare un task non deve alterare gli altri task."""
         service_populated.complete(1)
         raw = json.loads(populated_json_file.read_text(encoding="utf-8"))
@@ -170,14 +172,16 @@ class TestTaskServiceDelete:
         result = service_populated.delete(999)
         assert result is False
 
-    def test_delete_removes_from_disk(self, service_populated: TaskService, populated_json_file: Path):
+    def test_delete_removes_from_disk(
+            self, service_populated: TaskService, populated_json_file: Path):
         """Il task eliminato non deve essere presente nel file JSON."""
         service_populated.delete(2)
         raw = json.loads(populated_json_file.read_text(encoding="utf-8"))
         ids = [t["id"] for t in raw]
         assert 2 not in ids
 
-    def test_delete_preserves_other_tasks(self, service_populated: TaskService, populated_json_file: Path):
+    def test_delete_preserves_other_tasks(
+            self, service_populated: TaskService, populated_json_file: Path):
         """Eliminare un task non deve alterare gli altri task."""
         service_populated.delete(2)
         raw = json.loads(populated_json_file.read_text(encoding="utf-8"))

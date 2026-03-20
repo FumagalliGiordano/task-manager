@@ -24,7 +24,6 @@ Formato testo (dev):
 
 import json
 import sys
-from pathlib import Path
 from typing import Any
 
 from loguru import logger as _loguru_logger
@@ -32,6 +31,7 @@ from loguru import logger as _loguru_logger
 from config.settings import settings
 
 # ─── Formato JSON strutturato ─────────────────────────────────────────────────
+
 
 def _json_formatter(record: dict) -> str:
     """
@@ -65,6 +65,7 @@ _TEXT_FORMAT = (
 )
 
 # ─── Setup sink ───────────────────────────────────────────────────────────────
+
 
 def _setup_logging() -> None:
     """Configura loguru in base a settings. Chiamato una volta all'avvio."""
