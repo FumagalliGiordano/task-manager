@@ -43,13 +43,19 @@ class TaskService:
     # ─── Public API ───────────────────────────────────────────────────────────
 
     def add(self, title: str) -> Task:
-        """Crea e salva un nuovo task con reload pre-scrittura."""
-        tasks = self._load()                         # [BUG-1] legge stato attuale da disco
-        task = Task(id=self._next_id(tasks), title=title)
-        tasks.append(task)
-        self._persist(tasks)
-        logger.info(f"Task aggiunto: {task}")
-        return task
+        """Crea e salva un nuovo task in modo atomico (lock unico)."""
+        task_ref = {}
+
+        def _add(tasks: list) -> list:
+            new_id = max((t["id"] for t in tasks), default=0) + 1
+            task = Task(id=new_id, title=title)
+            task_ref["task"] = task
+            tasks.append(task.model_dump())
+            return tasks
+
+        self.storage.atomic_update(_add)
+        logger.info(f"Task aggiunto: {task_ref['task']}")
+        return task_ref["task"]
 
     def list_all(self) -> List[Task]:
         """Restituisce tutti i task (sempre freschi da disco)."""

@@ -132,7 +132,40 @@ class JsonStorage:
         except OSError as e:
             logger.error(f"Errore I/O scrittura storage: {e}")
             try:
-                tmp_path.unlink(missing_ok=True)
-            except Exception:
+                tmp_path.unlink(missing_ok=True)  # type: ignore[possibly-undefined]
+            except (NameError, Exception):
                 pass
             raise
+
+    # ─── Update (Atomic) ────────────────────────────────────────────────────────
+
+    def atomic_update(self, fn):
+        """
+        Acquisisce il lock UNA volta, carica, applica fn, salva.
+        Garantisce che load+save siano atomici insieme.
+        """
+        try:
+            with self.lock:
+                # Load interno (senza riacquisire il lock)
+                if not self.path.exists():
+                    tasks = []
+                else:
+                    with self.path.open("r", encoding="utf-8") as f:
+                        tasks = json.load(f)
+
+                updated = fn(tasks)
+
+                # Save interno (atomico)
+                dir_path = self.path.parent
+                with tempfile.NamedTemporaryFile(
+                    mode="w", encoding="utf-8",
+                    dir=dir_path, delete=False, suffix=".tmp"
+                ) as tmp:
+                    json.dump(updated, tmp, indent=2, ensure_ascii=False)
+                    tmp_path = Path(tmp.name)
+                tmp_path.replace(self.path)
+
+        except Timeout:
+            raise RuntimeError(
+                "Un altro processo sta usando il file. Riprova tra qualche secondo."
+            )
